@@ -4,20 +4,11 @@ let activeElement = null;
 
 let list = null;
 
-let table;
-
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // try {
     list = await load();
-
-    displayTable(list, 'regionTable', '.container');
-    // displaySubTable(list);
-    // } catch (error) {
-    //     throw new Error(error);
-    // }
-
-})
+    displayTable(filter(list, null, true, false), 'regionTable');
+});
 
 async function load() {
     let response = await fetch('http://localhost:63342/RegexPractice/Tables/small.csv');
@@ -103,38 +94,56 @@ function filter(list, currentElement, showRegion, showCity) {
 }
 
 
-function displayTable(currentList, tableName, className) {
-    table = document.createElement('table');
+function displayTable(currentList, tableName) {
+
+
+    if (tableName == 'regionTable') {
+        let currentTable = createTable(currentList, tableName);
+        let regionBlock = document.querySelector('.region');
+        regionBlock.appendChild(currentTable);
+        regionBlock.addEventListener('click', event => {
+            let selectedRow = event.target.closest('tr');
+            if (!selectedRow) return;
+            if (activeElement) {
+                activeElement.classList.remove('active');
+            }
+            activeElement = selectedRow;
+            activeElement.classList.add('active');
+            displaySubTable(activeElement);
+        });
+    }
+
+    if(tableName == 'cityTable') {
+        let currentTable = createTable(currentList, tableName);
+        let cityBlock = document.querySelector('.city');
+        cityBlock.appendChild(currentTable);
+    }
+}
+
+function createTable(tableList, tableName) {
+    let table = document.createElement('table');
     table.classList.add(tableName);
+    let tHead = document.createElement('thead');
+    table.appendChild(tHead);
+
+    let headerCode = document.createElement('th');
+    headerCode.innerHTML = 'Code';
+    let headerLvl = document.createElement('th');
+    headerLvl.innerHTML = 'Level';
+    let headerName = document.createElement('th');
+    headerName.innerHTML = 'Name';
+
+    let tableRowHeaders = document.createElement('tr');
+    tableRowHeaders.appendChild(headerCode);
+    tableRowHeaders.appendChild(headerLvl);
+    tableRowHeaders.appendChild(headerName);
+    tHead.appendChild(tableRowHeaders);
 
     let tBody = document.createElement('tbody');
     table.appendChild(tBody);
 
 
-    if (tableName == 'regionTable') {
-        let tHead = document.createElement('thead');
-
-        table.appendChild(tHead);
-
-        let headerCode = document.createElement('th');
-        headerCode.innerHTML = 'Code';
-        let headerLvl = document.createElement('th');
-        headerLvl.innerHTML = 'Level';
-        let headerName = document.createElement('th');
-        headerName.innerHTML = 'Name';
-
-        let tableRowHeaders = document.createElement('tr');
-        tableRowHeaders.appendChild(headerCode);
-        tableRowHeaders.appendChild(headerLvl);
-        tableRowHeaders.appendChild(headerName);
-
-        tHead.appendChild(tableRowHeaders);
-
-        currentList = filter(list, null, true, false);
-    }
-
-
-    for (let item of currentList) {
+    for (let item of tableList) {
         let tableDataCode = document.createElement('td');
         tableDataCode.innerHTML = item.code;
         let tableDataLvl = document.createElement('td');
@@ -149,59 +158,57 @@ function displayTable(currentList, tableName, className) {
 
         tBody.appendChild(tableRow);
     }
-
-    let tableBlock = document.querySelector(className);
-    tableBlock.appendChild(table);
-
-    if (tableName == 'regionTable') {
-        tBody.addEventListener('click', event => {
-            let selectedRow = event.target.closest('tr');
-            if (!selectedRow) return;
-            if (activeElement) {
-                activeElement.classList.remove('active');
-            }
-
-            activeElement = selectedRow;
-            activeElement.classList.add('active');
-            displaySubTable(list, activeElement);
-        });
-    }
-
+    return table;
 }
 
-//
-function displaySubTable(currentList, selectedElement) {
-    let subTableList = document.querySelector('.subTable');
-    if (subTableList) subTableList.remove();
 
-    subTableList = filter(list, selectedElement, true, false);
-    if (subTableList.length == 0) return;
-    displayTable(subTableList, 'subTable', '.container');
-
+function displaySubTable(selectedElement) {
     let subTable = document.querySelector('.subTable');
+    if (subTable) subTable.remove();
+
+    let subTableList = filter(list, selectedElement, true, false);
+    if (subTableList.length == 0) return;
+
+    subTable = createTable(subTableList, 'subTable');
+    let row = document.createElement('tr');
+    row.appendChild(subTable);
+    selectedElement.insertAdjacentElement('afterend', row);
+
+    // selectedElement.appendChild(subTable);
+    // displayTable(subTableList, 'subTable');
+
+
     subTable.addEventListener('click', event => {
         let selectedDistrict = event.target.closest('tr');
+        if(!selectedDistrict) return;
+        let filteredList = filter(list, selectedDistrict, false, true);
+        if(filteredList.length == 0) return;
+        displayTable(filteredList, 'cityTable');
 
-        let cityTable = document.querySelector('.cityTable');
-        if (cityTable) cityTable.remove();
-        displayTable(filter(list, selectedDistrict, false, true), 'cityTable', '.container');
-    })
+        // let cityTable = document.querySelector('.cityTable');
+        // if (cityTable) cityTable.remove();
+        // let cityTableList = filter(list, selectedDistrict, false, true);
+        // if (cityTableList.length == 0) return;
+        // displayTable(cityTableList, 'cityTable', '.container');
+        // let cityBlock = document.querySelector('.city');
+        // cityBlock.appendChild(document.querySelector('.cityTable'));
+    });
 }
 
-// let inputRegion = document.querySelector('#region');
-// inputRegion.oninput = () => {
-//     let rows = document.getElementsByTagName('tr');
-//     if(inputRegion.value.length < 3) {
-//         for(let row of rows) {
-//             row.classList.remove('hidden');
-//         }
-//     };
-//
-//     for(let row of rows) {
-//         let rowContent = row.cells.item(2).textContent;
-//         if (!rowContent.includes(inputRegion.value)) row.classList.add('hidden');
-//     }
-// };
+let inputRegion = document.querySelector('#region');
+inputRegion.oninput = () => {
+    let rows = document.getElementsByTagName('tr');
+    if(inputRegion.value.length < 3) {
+        for(let row of rows) {
+            row.classList.remove('hidden');
+        }
+    };
+
+    for(let row of rows) {
+        let rowContent = row.cells.item(2).textContent;
+        if (!rowContent.includes(inputRegion.value)) row.classList.add('hidden');
+    }
+};
 
 
 

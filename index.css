@@ -1,7 +1,16 @@
-.container {
-    display: flex;
-    margin: 5px;
+/*.container {*/
+/*    display: flex;*/
+/*    width: 100%;*/
+/*    margin: 5px;*/
+/*}*/
+
+.region {
+    width: 100%;
 }
+
+/*.city {*/
+/*    width: 50%;*/
+/*}*/
 .inputs input{
     display: flex;
     font-size: 16px;
@@ -61,4 +70,8 @@ table tbody tr:hover {
 .active {
     border: 2px solid black;
     background: red !important;
+}
+
+.subTable {
+    width: 90%;
 }
