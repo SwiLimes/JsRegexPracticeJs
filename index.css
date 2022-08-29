@@ -1,0 +1,58 @@
+.container {
+    display: flex;
+    margin: 5px;
+}
+.inputs input{
+    display: flex;
+    font-size: 16px;
+    padding: 5px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    border: 3px solid black;
+    margin: 5px;
+}
+table thead {
+    border-collapse: collapse;
+    border: 1px solid black;
+}
+table th:nth-child(1) {
+    width: 15%;
+}
+
+table thead th:nth-child(2) {
+    width: 10%;
+}
+
+table thead th:nth-child(3) {
+    width: 75%;
+}
+
+table tbody tr:nth-child(even) {
+    background: yellow;
+}
+
+table tbody tr:nth-child(odd) {
+    background: yellowgreen;
+}
+
+table td, table th {
+    text-align: left;
+    padding: 8px;
+}
+
+table tr {
+    border-bottom: 1px solid black;
+}
+
+table tbody tr:hover {
+    background: gainsboro !important;
+}
+
+.hidden {
+    display: none;
+}
