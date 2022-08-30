@@ -1,22 +1,22 @@
-/*.container {*/
-/*    display: flex;*/
-/*    width: 100%;*/
-/*    margin: 5px;*/
-/*}*/
-
-.region {
-    width: 100%;
+.container {
+    display: flex;
 }
 
-/*.city {*/
-/*    width: 50%;*/
-/*}*/
-.inputs input{
+.region {
+    width: 50%;
+    margin-right: 5px;
+}
+
+.city {
+    width: 50%;
+    margin-left: 5px;
+    float: right;
+}
+.controlBlock{
     display: flex;
     font-size: 16px;
+    margin: 5px auto;
     padding: 5px;
-    width: 100%;
-    margin-bottom: 10px;
 }
 table {
     table-layout: fixed;
@@ -25,11 +25,13 @@ table {
     border: 3px solid black;
     margin: 5px;
     max-height: 30px;
+    font-family: Verdana;
 }
 table thead {
     border-collapse: collapse;
     border: 1px solid black;
 }
+
 table th:nth-child(1) {
     width: 15%;
 }
@@ -43,11 +45,11 @@ table thead th:nth-child(3) {
 }
 
 table tbody tr:nth-child(even) {
-    background: yellow;
+    background: orangered;
 }
 
 table tbody tr:nth-child(odd) {
-    background: yellowgreen;
+    background: darkgreen;
 }
 
 table td, table th {
@@ -63,15 +65,48 @@ table tbody tr:hover {
     background: gainsboro !important;
 }
 
+.subTable tbody tr:nth-child(even){
+    background: orange;
+}
+
+.subTable tbody tr:nth-child(odd){
+    background: green;
+}
+
+.cityTable tbody tr:nth-child(even){
+    background: yellow;
+}
+
+.cityTable tbody tr:nth-child(odd){
+    background: yellowgreen;
+}
+
 .hidden {
     display: none;
 }
 
 .active {
-    border: 2px solid black;
-    background: red !important;
+    border: 5px solid red;
 }
 
 .subTable {
-    width: 90%;
+    width: 95%;
+}
+.controlBlock {
+    display: flex;
+}
+
+#region {
+    width: 35%;
+    margin-right: 15%;
+}
+#city {
+    width: 35%;
+    margin-right: 5%;
+}
+
+.controlBlock input, .controlBlock select {
+    border: 3px solid black;
+    border-radius: 5px;
+    background: yellowgreen;
 }

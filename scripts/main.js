@@ -1,7 +1,4 @@
-let containerBlock = document.querySelector('.container');
-
 let activeElement = null;
-
 let list = null;
 
 
@@ -11,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function load() {
-    let response = await fetch('http://localhost:63342/RegexPractice/Tables/small.csv');
+    let response = await fetch('http://localhost:63342/JsRegexPracticeJs/Tables/small.csv');
     if (!response.ok) throw new Error(response.statusText);
     let text = await response.text();
 
@@ -68,8 +65,7 @@ function createListByRegex(text) {
 function filter(list, currentElement, showRegion, showCity) {
     if (currentElement)
         if (showRegion && currentElement) {
-            let elementCode1 = currentElement.childNodes[0].innerHTML.split(' ')[0];
-            console.log(elementCode1);
+            let elementCode1 = currentElement[0];    //Убрать, принимать как параметр
             let filteredList = list.filter(item => {
                 return item.code1 == elementCode1
                     && item.code2 != '000'
@@ -80,9 +76,12 @@ function filter(list, currentElement, showRegion, showCity) {
         }
 
     if (showCity && currentElement) {
-        let elementCode2 = currentElement.childNodes[0].innerHTML.split(' ')[1];
+        let elementCode2 = currentElement[1];
+        let elementCode3 = currentElement[2];
+
         let filteredList = list.filter(item => {
             return item.code2 == elementCode2
+                && item.code3 == elementCode3
                 && item.code4 != '000'
                 && item.levelCity == '2';
         })
@@ -103,17 +102,30 @@ function displayTable(currentList, tableName) {
         regionBlock.appendChild(currentTable);
         regionBlock.addEventListener('click', event => {
             let selectedRow = event.target.closest('tr');
+
             if (!selectedRow) return;
             if (activeElement) {
                 activeElement.classList.remove('active');
+                //Проверяется, что активный элемент - это регион
+                if (selectedRow.parentElement.parentElement.classList.contains('regionTable')) {
+                    let subTable = document.querySelector('.subTable');
+                    if (subTable) {
+                        subTable.parentElement.remove();
+                        subTable.remove();
+                    }
+                }
             }
             activeElement = selectedRow;
             activeElement.classList.add('active');
             displaySubTable(activeElement);
+
+
         });
     }
 
-    if(tableName == 'cityTable') {
+    if (tableName == 'cityTable') {
+        let cityTable = document.querySelector('.cityTable');
+        if (cityTable) cityTable.remove();
         let currentTable = createTable(currentList, tableName);
         let cityBlock = document.querySelector('.city');
         cityBlock.appendChild(currentTable);
@@ -164,51 +176,89 @@ function createTable(tableList, tableName) {
 
 function displaySubTable(selectedElement) {
     let subTable = document.querySelector('.subTable');
-    if (subTable) subTable.remove();
 
-    let subTableList = filter(list, selectedElement, true, false);
-    if (subTableList.length == 0) return;
+    if (!subTable) {
+        let subTableList = filter(list, selectedElement.firstChild.textContent.split(' '), true, false);
+        if (subTableList.length == 0) return;
 
-    subTable = createTable(subTableList, 'subTable');
-    let row = document.createElement('tr');
-    row.appendChild(subTable);
-    selectedElement.insertAdjacentElement('afterend', row);
-
-    // selectedElement.appendChild(subTable);
-    // displayTable(subTableList, 'subTable');
-
+        subTable = createTable(subTableList, 'subTable');
+        let row = document.createElement('tr');
+        let td = document.createElement('td');
+        td.colSpan = 3;
+        td.appendChild(subTable);
+        row.appendChild(td);
+        selectedElement.insertAdjacentElement('afterend', row);
+    }
 
     subTable.addEventListener('click', event => {
+        console.log('ok');
         let selectedDistrict = event.target.closest('tr');
-        if(!selectedDistrict) return;
-        let filteredList = filter(list, selectedDistrict, false, true);
-        if(filteredList.length == 0) return;
-        displayTable(filteredList, 'cityTable');
+        if (!selectedDistrict) return;
+        let filteredList = filter(list, selectedDistrict.firstChild.textContent.split(' '), false, true);
+        let cityTable = document.querySelector('.cityTable');
+        if (cityTable) {
+            cityTable.remove();
+        }
+        if (filteredList.length == 0) return;
 
-        // let cityTable = document.querySelector('.cityTable');
-        // if (cityTable) cityTable.remove();
-        // let cityTableList = filter(list, selectedDistrict, false, true);
-        // if (cityTableList.length == 0) return;
-        // displayTable(cityTableList, 'cityTable', '.container');
-        // let cityBlock = document.querySelector('.city');
-        // cityBlock.appendChild(document.querySelector('.cityTable'));
+        displayTable(filteredList, 'cityTable');
     });
 }
 
 let inputRegion = document.querySelector('#region');
 inputRegion.oninput = () => {
-    let rows = document.getElementsByTagName('tr');
-    if(inputRegion.value.length < 3) {
-        for(let row of rows) {
+    let regionTable = document.querySelector('.regionTable');
+    let rows = regionTable.getElementsByTagName('tr');
+    if (inputRegion.value.length < 3) {
+        for (let row of rows) {
             row.classList.remove('hidden');
         }
-    };
-
-    for(let row of rows) {
-        let rowContent = row.cells.item(2).textContent;
-        if (!rowContent.includes(inputRegion.value)) row.classList.add('hidden');
+    } else {
+        for (let row of rows) {
+            let rowContent = row.cells[2].textContent;
+            if (!rowContent.includes(inputRegion.value)) row.classList.add('hidden');
+        }
     }
+
 };
+
+let inputCity = document.querySelector('#city');
+inputCity.oninput = () => {
+    let cityTable = document.querySelector('.cityTable');
+    if (!cityTable) return;
+    let rows = cityTable.getElementsByTagName('tr');
+    if (inputCity.value.length < 3) {
+        for (let row of rows) {
+            row.classList.remove('hidden');
+        }
+    } else {
+        let counter = 0;
+        for (let row of rows) {
+            if (counter == 20) break;
+            let rowContent = row.cells.item(2).textContent;
+            if (!rowContent.includes(inputCity.value)) row.classList.add('hidden');
+        }
+    }
+}
+
+// function displayFilterInfo(rows, activeInput) {
+//     if(checkInput(rows, activeInput.value.length)) hideMismatches(rows, activeInput.value)
+// }
+// function checkInput(rows, inputValueLength) {
+//     if(inputValueLength < 3) {
+//         for(let row of rows) {
+//             row.classList.remove('hidden');
+//         }
+//     }
+//     else return false;
+// }
+// function hideMismatches(rows, inputName) {
+//     for(let row of rows) {
+//         let rowContent = row.cells[2].textContent;
+//         if(!rowContent.includes(inputName.value)) row.classList.add('hidden');
+//     }
+// }
+
 
 
 
